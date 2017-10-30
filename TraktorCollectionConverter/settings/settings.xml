@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<TCC>
 
-<originalTSIPath></originalTSIPath>
+<original>
+	<path name="TSI"></path>
+</original>
 
 <target>
 	<path name="TSI"></path>
 </target>
+
+</TCC>

@@ -4,7 +4,7 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 
-public class TSIFilter extends TraktorFileTypeFilter {
+public class NMLFilter extends TraktorFileTypeFilter {
 
 	@Override
 	public boolean accept(File f) {
@@ -20,12 +20,12 @@ public class TSIFilter extends TraktorFileTypeFilter {
 
 	@Override
 	public String getDescription() {
-		return "Traktor Settings File (" + getFileTypeEnding() + ")";
+		return "Traktor Collection File (" + getFileTypeEnding() + ")";
 	}
 
 	@Override
 	public String getFileTypeEnding() {
-		return ".tsi";
+		return ".nml";
 	}
 
 	@Override

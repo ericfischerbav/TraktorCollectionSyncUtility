@@ -6,14 +6,14 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import dance.danieldavisericvanthorn.traktorcollectionconverter.settings.SettingsManager;
+import dance.danieldavisericvanthorn.traktorcollectionconverter.settings.InternalSettingsManager;
 import dance.danieldavisericvanthorn.traktorcollectionconverter.ui.mainpage.MainFrame;
 
 public class Main {
 
 	public static void main(String[] args) {
 		try {
-			SettingsManager.loadInternalSettings();
+			InternalSettingsManager.loadInternalSettings();
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
