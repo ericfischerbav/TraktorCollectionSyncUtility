@@ -1,4 +1,4 @@
-package dance.danieldavisericvanthorn.traktorcollectionconverter.converter;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package dance.danieldavisericvanthorn.traktorcollectionconverter.ui.mainpage;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.mainpage;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -15,8 +15,8 @@ import javax.xml.transform.TransformerException;
 
 import org.xml.sax.SAXException;
 
-import dance.danieldavisericvanthorn.traktorcollectionconverter.interfaces.Redrawer;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.settings.InternalSettingsManager;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.interfaces.Redrawer;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
 
 public class MainFrame extends JFrame implements Redrawer {
 

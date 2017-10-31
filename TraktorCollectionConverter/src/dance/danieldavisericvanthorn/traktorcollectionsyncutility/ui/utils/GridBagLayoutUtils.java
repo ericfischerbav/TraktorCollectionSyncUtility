@@ -1,4 +1,4 @@
-package dance.danieldavisericvanthorn.traktorcollectionconverter.ui.utils;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.utils;
 
 import java.awt.Component;
 import java.awt.Container;

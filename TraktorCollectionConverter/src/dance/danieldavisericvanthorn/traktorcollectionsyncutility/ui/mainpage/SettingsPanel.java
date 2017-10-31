@@ -1,4 +1,4 @@
-package dance.danieldavisericvanthorn.traktorcollectionconverter.ui.mainpage;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.mainpage;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -20,14 +20,14 @@ import javax.xml.transform.TransformerException;
 
 import org.xml.sax.SAXException;
 
-import dance.danieldavisericvanthorn.traktorcollectionconverter.converter.SettingsParser;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.enums.ErrorCase;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.enums.TraktorDirectories;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.enums.TraktorFileType;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.interfaces.Redrawer;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.settings.InternalSettingsManager;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.ui.filechooser.TraktorFileChooserFrame;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.ui.utils.GridBagLayoutUtils;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.SettingsParser;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.ErrorCase;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorFileType;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.interfaces.Redrawer;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.filechooser.TraktorFileChooserFrame;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.utils.GridBagLayoutUtils;
 
 public class SettingsPanel extends JPanel {
 
@@ -38,11 +38,9 @@ public class SettingsPanel extends JPanel {
 
 	private GridBagLayout gbl = new GridBagLayout();
 	private JTextField pathSettingsTSI = null;
-	private JButton action;
 	private JButton settingsTSIButton;
 	private SettingsParser settingsParser;
 	private Redrawer mainframe;
-	private JLabel pathsLabel;
 	private JTextField rootPathField;
 	private JButton rootPathButton;
 
@@ -95,8 +93,7 @@ public class SettingsPanel extends JPanel {
 				}
 			}
 		});
-		rootPathField.setEnabled(false);
-		rootPathButton.setEnabled(false);
+		rootPathField.setText(InternalSettingsManager.getTargetDirecory(TraktorDirectories.ROOT).get(0));
 
 	}
 
@@ -120,9 +117,6 @@ public class SettingsPanel extends JPanel {
 	private void redrawPanel() {
 
 		if (settingsParser != null) {
-			action = null;
-			rootPathField.setEnabled(true);
-			rootPathButton.setEnabled(true);
 			repaint();
 			mainframe.redraw();
 		}
@@ -132,7 +126,7 @@ public class SettingsPanel extends JPanel {
 	private void createErrorMessage(ErrorCase error) {
 		switch (error) {
 		case FILE_UPDATE_NOT_POSSIBLE:
-			JOptionPane errorPane = new JOptionPane("Settings could not be updated.", JOptionPane.ERROR_MESSAGE);
+			new JOptionPane("Settings could not be updated.", JOptionPane.ERROR_MESSAGE);
 			break;
 		default:
 			break;

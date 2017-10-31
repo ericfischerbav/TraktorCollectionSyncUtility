@@ -1,12 +1,12 @@
-package dance.danieldavisericvanthorn.traktorcollectionconverter.ui.filechooser;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.filechooser;
 
 import java.awt.Dimension;
 import java.io.File;
 
 import javax.swing.JFileChooser;
 
-import dance.danieldavisericvanthorn.traktorcollectionconverter.enums.TraktorFileType;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.settings.InternalSettingsManager;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorFileType;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
 
 public class TraktorFileChooserFrame extends JFileChooser {
 

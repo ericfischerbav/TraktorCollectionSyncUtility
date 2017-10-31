@@ -1,4 +1,4 @@
-package dance.danieldavisericvanthorn.traktorcollectionconverter.ui.filechooser.filters;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.filechooser.filters;
 
 import javax.swing.filechooser.FileFilter;
 

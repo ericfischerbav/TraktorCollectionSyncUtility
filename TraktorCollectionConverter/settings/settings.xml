@@ -4,10 +4,7 @@
 	<path name="TSI" type="file">G:\Musik\Native Instruments\Traktor 2.11.0\Traktor Settings.tsi</path>
 	<path name="NML" type="file">G:\Musik\Native Instruments\Traktor 2.11.0\collection.nml</path>
 	<path name="root" type="directory">G:\Musik\Native Instruments\Traktor 2.11.0\</path>
-	<collection name="music" type="directory">
-		<path>Select your path here.</path>
-		<path>Select your path here.</path>
-	</collection>
+	<collection name="music" type="directory"><path>Select your path here.</path><path>Select your path here.</path><path/><path/><path/><path/><path/><path/><path/><path/><path/></collection>
 	<path name="recordings" type="directory">G:\Musik\Mixes\Traktor Recordings\</path>
 	<path name="itunes" type="directory">C\iTunes\iTunes Music Library.xml</path>
 	<path name="remixsets" type="directory">G:\Musik\Native Instruments\Traktor\Remix Sets\</path>

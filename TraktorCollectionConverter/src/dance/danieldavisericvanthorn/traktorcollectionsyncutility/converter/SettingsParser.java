@@ -1,4 +1,4 @@
-package dance.danieldavisericvanthorn.traktorcollectionconverter.converter;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,8 +15,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import dance.danieldavisericvanthorn.traktorcollectionconverter.enums.TraktorDirectories;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.settings.InternalSettingsManager;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
 
 public class SettingsParser {
 

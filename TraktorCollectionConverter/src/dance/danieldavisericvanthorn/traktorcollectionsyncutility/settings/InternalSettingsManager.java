@@ -1,4 +1,4 @@
-package dance.danieldavisericvanthorn.traktorcollectionconverter.settings;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,9 +22,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import dance.danieldavisericvanthorn.traktorcollectionconverter.converter.SettingsParser;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.enums.TraktorDirectories;
-import dance.danieldavisericvanthorn.traktorcollectionconverter.enums.TraktorFileType;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.SettingsParser;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorFileType;
 
 public class InternalSettingsManager {
 
@@ -102,6 +102,67 @@ public class InternalSettingsManager {
 						}
 					}
 				}
+			}
+		}
+
+		NodeList targetNode = tcc.getElementsByTagName("target");
+		for (int i = 0; i <= originalNode.getLength() - 1; i++) {
+			Node element = targetNode.item(i);
+			if (element.getNodeType() == Node.ELEMENT_NODE) {
+				NodeList targetChildNodes = element.getChildNodes();
+				for (int a = 0; a <= targetChildNodes.getLength(); a++) {
+					Node childElement = targetChildNodes.item(a);
+					if (childElement != null && childElement.getNodeType() == Node.ELEMENT_NODE) {
+						if (childElement.getNodeName().equals("path")) {
+							// if (((Element)
+							// childElement).getAttribute("name").equals("TSI"))
+							// {
+							// setTraktorPath(TraktorFileType.SETTINGS,
+							// childElement.getTextContent());
+							// } else if (((Element)
+							// childElement).getAttribute("name").equals("NML"))
+							// {
+							// setTraktorPath(TraktorFileType.COLLECTION,
+							// childElement.getTextContent());
+							// } else if (((Element)
+							// childElement).getAttribute("name").equals("root"))
+							// {
+							if (((Element) childElement).getAttribute("name").equals("root")) {
+								List<String> elements = new ArrayList<>();
+								elements.add(childElement.getTextContent());
+								setTargetDirectory(TraktorDirectories.ROOT, elements);
+							} else if (((Element) childElement).getAttribute("name").equals("recordings")) {
+								List<String> elements = new ArrayList<>();
+								elements.add(childElement.getTextContent());
+								setTargetDirectory(TraktorDirectories.RECORDINGS, elements);
+							} else if (((Element) childElement).getAttribute("name").equals("remixsets")) {
+								List<String> elements = new ArrayList<>();
+								elements.add(childElement.getTextContent());
+								setTargetDirectory(TraktorDirectories.REMIXSETS, elements);
+							} else if (((Element) childElement).getAttribute("name").equals("itunes")) {
+								List<String> elements = new ArrayList<>();
+								elements.add(childElement.getTextContent());
+								setTargetDirectory(TraktorDirectories.ITUNES, elements);
+							} else if (((Element) childElement).getAttribute("name").equals("loops")) {
+								List<String> elements = new ArrayList<>();
+								elements.add(childElement.getTextContent());
+								setTargetDirectory(TraktorDirectories.LOOPS, elements);
+							}
+						} else if (childElement.getNodeName().equals("collection")
+								&& ((Element) childElement).getAttribute("name").equals("music")) {
+							NodeList musicFolders = childElement.getChildNodes();
+							List<String> musicPaths = new ArrayList<>();
+							for (int m = 0; m <= musicFolders.getLength(); m++) {
+								Node musicFolderElement = musicFolders.item(m);
+								if (musicFolderElement != null && musicFolderElement.getNodeType() == Node.ELEMENT_NODE
+										&& musicFolderElement.getNodeName().equals("path")) {
+									musicPaths.add(musicFolderElement.getTextContent());
+								}
+							}
+							setTargetDirectory(TraktorDirectories.MUSIC, musicPaths);
+						}
+					}
+				}
 
 			}
 		}
@@ -115,7 +176,6 @@ public class InternalSettingsManager {
 		for (TraktorDirectories key : originalDirectories.keySet()) {
 			System.out.println("- " + key.getName() + ": " + originalDirectories.get(key));
 		}
-
 	}
 
 	/**
@@ -179,23 +239,27 @@ public class InternalSettingsManager {
 							}
 						} else if (childElement.getNodeName().equals("collection")
 								&& ((Element) childElement).getAttribute("name").equals("music")) {
-							// NodeList musicFolders =
-							// childElement.getChildNodes();
-							// List<String> musicPaths = new ArrayList<>();
-							// for (int m = 0; m <= musicFolders.getLength();
-							// m++) {
-							// Node musicFolderElement = musicFolders.item(m);
-							// if (musicFolderElement != null &&
-							// musicFolderElement.getNodeType() ==
-							// Node.ELEMENT_NODE
-							// &&
-							// musicFolderElement.getNodeName().equals("path"))
-							// {
-							// musicPaths.add(musicFolderElement.getTextContent());
-							// }
-							// }
-							// setOriginalDirectory(TraktorDirectories.MUSIC,
-							// musicPaths);
+							NodeList musicFolders = childElement.getChildNodes();
+							List<String> musicPaths = parser.getMusicFolders();
+							for (int m = 0; m <= musicFolders.getLength(); m++) {
+								Node musicFolderElement = musicFolders.item(m);
+								// TODO check if information is lost here
+								if (musicFolderElement.getNodeType() == Node.ELEMENT_NODE) {
+									childElement.removeChild(musicFolderElement);
+								}
+							}
+							for (String path : musicPaths) {
+								Node newChild = dom.createElement("path");
+								NodeList newChildNodes = newChild.getChildNodes();
+								for (int ncn = 0; ncn <= newChildNodes.getLength(); ncn++) {
+									Node childNode = newChildNodes.item(ncn);
+									if (childNode != null && childNode.getNodeType() == Node.TEXT_NODE) {
+										childNode.setNodeValue(path);
+									}
+								}
+								childElement.appendChild(newChild);
+							}
+							setOriginalDirectory(TraktorDirectories.MUSIC, musicPaths);
 						}
 					}
 				}

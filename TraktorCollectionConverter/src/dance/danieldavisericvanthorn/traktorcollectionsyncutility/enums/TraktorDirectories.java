@@ -1,4 +1,4 @@
-package dance.danieldavisericvanthorn.traktorcollectionconverter.enums;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums;
 
 public enum TraktorDirectories {
 
