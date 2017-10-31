@@ -22,7 +22,7 @@ public class TraktorFileChooserFrame extends JFileChooser {
 		setCurrentDirectory(new File(directory));
 		Dimension d = getToolkit().getScreenSize();
 		setLocation(((d.width - getSize().width) / 2), ((d.height - getSize().height) / 2));
-		setCurrentDirectory(new File(InternalSettingsManager.getTraktorPath(type)));
+		setCurrentDirectory(new File(InternalSettingsManager.getOriginalTraktorPath(type)));
 		setFileFilter(type.getFileFilter());
 		setFileSelectionMode(type.getFileFilter().getFileSelectionMode());
 		setAcceptAllFileFilterUsed(false);

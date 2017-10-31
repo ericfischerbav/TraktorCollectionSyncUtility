@@ -1,11 +1,16 @@
 package dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,9 +28,17 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.SettingsParser;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.ErrorCase;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorFileType;
 
+/**
+ * Class for managing the internal settings. It holds the settings in variables
+ * and writes it to the permanent settings file.
+ *
+ * @author Eric Fischer aka Eric van Thorn - eric@danieldavisericvanthorn.dance
+ *
+ */
 public class InternalSettingsManager {
 
 	private static final String file = "settings/settings.xml";
@@ -35,7 +48,9 @@ public class InternalSettingsManager {
 	private static DocumentBuilder db;
 	private static Element tcc;
 
-	private static Map<TraktorFileType, String> filePaths = new HashMap<>();
+	private static Map<TraktorFileType, String> originalFilePaths = new HashMap<>();
+	private static Map<TraktorFileType, String> targetFilePaths = new HashMap<>();
+
 	private static Map<TraktorDirectories, List<String>> originalDirectories = new HashMap<>();
 	private static Map<TraktorDirectories, List<String>> targetDirectories = new HashMap<>();
 
@@ -63,9 +78,9 @@ public class InternalSettingsManager {
 					if (childElement != null && childElement.getNodeType() == Node.ELEMENT_NODE) {
 						if (childElement.getNodeName().equals("path")) {
 							if (((Element) childElement).getAttribute("name").equals("TSI")) {
-								setTraktorPath(TraktorFileType.SETTINGS, childElement.getTextContent());
+								setOriginalTraktorPath(TraktorFileType.SETTINGS, childElement.getTextContent());
 							} else if (((Element) childElement).getAttribute("name").equals("NML")) {
-								setTraktorPath(TraktorFileType.COLLECTION, childElement.getTextContent());
+								setOriginalTraktorPath(TraktorFileType.COLLECTION, childElement.getTextContent());
 							} else if (((Element) childElement).getAttribute("name").equals("root")) {
 								List<String> elements = new ArrayList<>();
 								elements.add(childElement.getTextContent());
@@ -169,8 +184,8 @@ public class InternalSettingsManager {
 
 		System.out.println("---Originals---");
 		System.out.println("File paths:");
-		for (TraktorFileType type : filePaths.keySet()) {
-			System.out.println("- " + type.getFileFilter().getDescription() + ": " + filePaths.get(type));
+		for (TraktorFileType type : originalFilePaths.keySet()) {
+			System.out.println("- " + type.getFileFilter().getDescription() + ": " + originalFilePaths.get(type));
 		}
 		System.out.println("Directories:");
 		for (TraktorDirectories key : originalDirectories.keySet()) {
@@ -191,84 +206,52 @@ public class InternalSettingsManager {
 	 */
 	public static void updateOriginalSettings(SettingsParser parser)
 			throws ParserConfigurationException, SAXException, IOException, TransformerException {
-		if (dom == null) {
-			loadInternalSettings();
+
+		String collectionPath = originalFilePaths.get(TraktorFileType.SETTINGS).substring(0,
+				originalFilePaths.get(TraktorFileType.SETTINGS).length() - 20) + "collection.nml";
+		originalFilePaths.put(TraktorFileType.COLLECTION, collectionPath);
+
+		List<String> value = new ArrayList<>();
+		value.add(parser.getRoot());
+		originalDirectories.put(TraktorDirectories.ROOT, value);
+		value.remove(0);
+		value.add(parser.getRecordings());
+		originalDirectories.put(TraktorDirectories.RECORDINGS, value);
+		value.remove(0);
+		value.add(parser.getContentImportRoot());
+		originalDirectories.put(TraktorDirectories.REMIXSETS, value);
+		value.remove(0);
+		value.add(parser.getITunesMusic());
+		originalDirectories.put(TraktorDirectories.ITUNES, value);
+		value.remove(0);
+		value.add(parser.getLoops());
+		originalDirectories.put(TraktorDirectories.LOOPS, value);
+
+		List<String> musicPaths = parser.getMusicFolders();
+		setOriginalDirectory(TraktorDirectories.MUSIC, musicPaths);
+
+		writeSettings();
+
+	}
+
+	/**
+	 * Updates target settings according to the selected .tsi file.
+	 * 
+	 * @throws FileNotFoundException
+	 */
+	public static void loadTargetSettingsFromTSI() throws FileNotFoundException {
+		File tsi = new File(targetFilePaths.get(TraktorFileType.SETTINGS));
+		String rootFolder = tsi.getParent();
+		List<String> value = new ArrayList<>();
+		value.add(rootFolder);
+		targetDirectories.put(TraktorDirectories.ROOT, value);
+		String nmlPath = rootFolder + "collection.nml";
+		File nml = new File(nmlPath);
+		if (nml.exists()) {
+			targetFilePaths.put(TraktorFileType.COLLECTION, nmlPath);
+		} else {
+			throw new FileNotFoundException(ErrorCase.COLLECTION_FILE_NOT_FOUND.getCode());
 		}
-
-		NodeList originalNode = tcc.getElementsByTagName("original");
-		for (int i = 0; i <= originalNode.getLength() - 1; i++) {
-			Node element = originalNode.item(i);
-			if (element.getNodeType() == Node.ELEMENT_NODE) {
-				NodeList originalChildNodes = element.getChildNodes();
-				for (int a = 0; a <= originalChildNodes.getLength(); a++) {
-					Node childElement = originalChildNodes.item(a);
-					if (childElement != null && childElement.getNodeType() == Node.ELEMENT_NODE) {
-						if (childElement.getNodeName().equals("path")) {
-							if (((Element) childElement).getAttribute("name").equals("TSI")) {
-								editElement(childElement, filePaths.get(TraktorFileType.SETTINGS));
-								String collectionPath = filePaths.get(TraktorFileType.SETTINGS).substring(0,
-										filePaths.get(TraktorFileType.SETTINGS).length() - 20) + "collection.nml";
-								filePaths.put(TraktorFileType.COLLECTION, collectionPath);
-							} else if (((Element) childElement).getAttribute("name").equals("NML")) {
-								editElement(childElement, filePaths.get(TraktorFileType.COLLECTION));
-							} else if (((Element) childElement).getAttribute("name").equals("root")) {
-								editElement(childElement, parser.getRoot());
-								List<String> value = new ArrayList<>();
-								value.add(parser.getRoot());
-								originalDirectories.put(TraktorDirectories.ROOT, value);
-							} else if (((Element) childElement).getAttribute("name").equals("recordings")) {
-								editElement(childElement, parser.getRecordings());
-								List<String> value = new ArrayList<>();
-								value.add(parser.getRecordings());
-								originalDirectories.put(TraktorDirectories.RECORDINGS, value);
-							} else if (((Element) childElement).getAttribute("name").equals("remixsets")) {
-								editElement(childElement, parser.getContentImportRoot());
-								List<String> value = new ArrayList<>();
-								value.add(parser.getContentImportRoot());
-								originalDirectories.put(TraktorDirectories.REMIXSETS, value);
-							} else if (((Element) childElement).getAttribute("name").equals("itunes")) {
-								editElement(childElement, parser.getITunesMusic());
-								List<String> value = new ArrayList<>();
-								value.add(parser.getITunesMusic());
-								originalDirectories.put(TraktorDirectories.ITUNES, value);
-							} else if (((Element) childElement).getAttribute("name").equals("loops")) {
-								editElement(childElement, parser.getLoops());
-								List<String> value = new ArrayList<>();
-								value.add(parser.getLoops());
-								originalDirectories.put(TraktorDirectories.LOOPS, value);
-							}
-						} else if (childElement.getNodeName().equals("collection")
-								&& ((Element) childElement).getAttribute("name").equals("music")) {
-							NodeList musicFolders = childElement.getChildNodes();
-							List<String> musicPaths = parser.getMusicFolders();
-							for (int m = 0; m <= musicFolders.getLength(); m++) {
-								Node musicFolderElement = musicFolders.item(m);
-								// TODO check if information is lost here
-								if (musicFolderElement.getNodeType() == Node.ELEMENT_NODE) {
-									childElement.removeChild(musicFolderElement);
-								}
-							}
-							for (String path : musicPaths) {
-								Node newChild = dom.createElement("path");
-								NodeList newChildNodes = newChild.getChildNodes();
-								for (int ncn = 0; ncn <= newChildNodes.getLength(); ncn++) {
-									Node childNode = newChildNodes.item(ncn);
-									if (childNode != null && childNode.getNodeType() == Node.TEXT_NODE) {
-										childNode.setNodeValue(path);
-									}
-								}
-								childElement.appendChild(newChild);
-							}
-							setOriginalDirectory(TraktorDirectories.MUSIC, musicPaths);
-						}
-					}
-				}
-
-			}
-		}
-
-		writeFile();
-
 	}
 
 	private static void editElement(Node childElement, String content) {
@@ -283,8 +266,54 @@ public class InternalSettingsManager {
 
 	public static void writeSettings()
 			throws ParserConfigurationException, SAXException, IOException, TransformerException {
-		if (dom == null) {
-			loadInternalSettings();
+
+		createBackup();
+
+		NodeList originalNode = tcc.getElementsByTagName("original");
+		for (int i = 0; i <= originalNode.getLength() - 1; i++) {
+			Node element = originalNode.item(i);
+			if (element.getNodeType() == Node.ELEMENT_NODE) {
+				NodeList originalChildNodes = element.getChildNodes();
+				for (int a = 0; a <= originalChildNodes.getLength(); a++) {
+					Node childElement = originalChildNodes.item(a);
+					if (childElement != null && childElement.getNodeType() == Node.ELEMENT_NODE) {
+						if (childElement.getNodeName().equals("path")) {
+							if (((Element) childElement).getAttribute("name").equals("TSI")) {
+								editElement(childElement, originalFilePaths.get(TraktorFileType.SETTINGS));
+								String collectionPath = originalFilePaths.get(TraktorFileType.SETTINGS).substring(0,
+										originalFilePaths.get(TraktorFileType.SETTINGS).length() - 20)
+										+ "collection.nml";
+								originalFilePaths.put(TraktorFileType.COLLECTION, collectionPath);
+							} else if (((Element) childElement).getAttribute("name").equals("NML")) {
+								editElement(childElement, originalFilePaths.get(TraktorFileType.COLLECTION));
+							} else if (((Element) childElement).getAttribute("name").equals("root")) {
+								editElement(childElement, originalDirectories.get(TraktorDirectories.ROOT).get(0));
+							} else if (((Element) childElement).getAttribute("name").equals("recordings")) {
+								editElement(childElement,
+										originalDirectories.get(TraktorDirectories.RECORDINGS).get(0));
+							} else if (((Element) childElement).getAttribute("name").equals("remixsets")) {
+								editElement(childElement, originalDirectories.get(TraktorDirectories.REMIXSETS).get(0));
+							} else if (((Element) childElement).getAttribute("name").equals("itunes")) {
+								editElement(childElement, originalDirectories.get(TraktorDirectories.ITUNES).get(0));
+							} else if (((Element) childElement).getAttribute("name").equals("loops")) {
+								editElement(childElement, originalDirectories.get(TraktorDirectories.LOOPS).get(0));
+							}
+						} else if (childElement.getNodeName().equals("collection")
+								&& ((Element) childElement).getAttribute("name").equals("music")) {
+							while (childElement.hasChildNodes()) {
+								childElement.removeChild(childElement.getFirstChild());
+							}
+							for (String musicPath : getOriginalDirecory(TraktorDirectories.MUSIC)) {
+								Element newChild = dom.createElement("path");
+								Node textNode = dom.createTextNode(musicPath);
+								newChild.appendChild(textNode);
+								childElement.appendChild(newChild);
+							}
+						}
+					}
+				}
+
+			}
 		}
 
 		NodeList targetNodes = tcc.getElementsByTagName("target");
@@ -329,21 +358,45 @@ public class InternalSettingsManager {
 
 	}
 
+	private static void createBackup() throws IOException, TransformerException {
+		removeOldestBackup();
+		Calendar date = Calendar.getInstance();
+		String path = "settings/backup/settings-" + date.getTimeInMillis() + ".xml";
+		File f = new File(path);
+		f.getParentFile().mkdirs();
+		f.createNewFile();
+		writeFile(path);
+	}
+
+	private static void removeOldestBackup() {
+		Set<File> fileSet = new HashSet<>();
+		File folder = new File("settings/backup");
+		for (File file : folder.listFiles()) {
+			fileSet.add(file);
+		}
+		if (fileSet.size() >= 5) {
+			File oldest = Collections.min(fileSet);
+			oldest.delete();
+			removeOldestBackup();
+		}
+	}
+
 	private static void writeFile() throws TransformerException {
+		writeFile(file);
+	}
+
+	private static void writeFile(String path) throws TransformerException {
 		// write the content into xml file
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(dom);
-		StreamResult result = new StreamResult(new File(file));
-
-		// Output to console for testing
-		// StreamResult result = new StreamResult(System.out);
+		StreamResult result = new StreamResult(new File(path));
 
 		transformer.transform(source, result);
 	}
 
-	public static String getTraktorPath(TraktorFileType type) {
-		String path = filePaths.get(type);
+	public static String getOriginalTraktorPath(TraktorFileType type) {
+		String path = originalFilePaths.get(type);
 		if (path != null) {
 			return path;
 		} else {
@@ -351,8 +404,21 @@ public class InternalSettingsManager {
 		}
 	}
 
-	public static void setTraktorPath(TraktorFileType type, String path) {
-		filePaths.put(type, path);
+	public static void setOriginalTraktorPath(TraktorFileType type, String path) {
+		originalFilePaths.put(type, path);
+	}
+
+	public static String getTargetTraktorPath(TraktorFileType type) {
+		String path = targetFilePaths.get(type);
+		if (path != null) {
+			return path;
+		} else {
+			return "";
+		}
+	}
+
+	public static void setTargetTraktorPath(TraktorFileType type, String path) {
+		targetFilePaths.put(type, path);
 	}
 
 	public static List<String> getOriginalDirecory(TraktorDirectories type) {

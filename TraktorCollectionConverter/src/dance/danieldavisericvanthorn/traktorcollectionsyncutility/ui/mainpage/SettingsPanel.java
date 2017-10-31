@@ -5,9 +5,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -22,7 +21,6 @@ import org.xml.sax.SAXException;
 
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.SettingsParser;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.ErrorCase;
-import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorFileType;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.interfaces.Redrawer;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
@@ -39,7 +37,7 @@ public class SettingsPanel extends JPanel {
 	private GridBagLayout gbl = new GridBagLayout();
 	private JTextField pathSettingsTSI = null;
 	private JButton settingsTSIButton;
-	private SettingsParser settingsParser;
+	private SettingsParser originalSettingsParser;
 	private Redrawer mainframe;
 	private JTextField rootPathField;
 	private JButton rootPathButton;
@@ -61,9 +59,9 @@ public class SettingsPanel extends JPanel {
 						if (fileChooser.showSaveDialog(SettingsPanel.this) == JFileChooser.APPROVE_OPTION) {
 							String path = fileChooser.getSelectedFile().getAbsolutePath();
 							pathSettingsTSI.setText(path);
-							settingsParser = new SettingsParser(pathSettingsTSI.getText());
+							originalSettingsParser = new SettingsParser(pathSettingsTSI.getText());
 							try {
-								InternalSettingsManager.updateOriginalSettings(settingsParser);
+								InternalSettingsManager.updateOriginalSettings(originalSettingsParser);
 							} catch (ParserConfigurationException | SAXException | IOException
 									| TransformerException e1) {
 								createErrorMessage(ErrorCase.FILE_UPDATE_NOT_POSSIBLE);
@@ -73,27 +71,30 @@ public class SettingsPanel extends JPanel {
 
 					}
 				});
-		pathSettingsTSI.setText(InternalSettingsManager.getTraktorPath(TraktorFileType.SETTINGS));
+		pathSettingsTSI.setText(InternalSettingsManager.getOriginalTraktorPath(TraktorFileType.SETTINGS));
 
 		rootPathField = new JTextField(300);
 		rootPathButton = new JButton("...");
-		createChooseFileCombi("Choose new Root path:", rootPathField, rootPathButton, 4, new ActionListener() {
+		createChooseFileCombi("Choose target settings file:", rootPathField, rootPathButton, 4, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				TraktorFileChooserFrame fileChooser = new TraktorFileChooserFrame(TraktorFileType.FOLDER,
+				TraktorFileChooserFrame fileChooser = new TraktorFileChooserFrame(TraktorFileType.SETTINGS,
 						rootPathField.getText());
 				if (fileChooser.showSaveDialog(SettingsPanel.this) == JFileChooser.APPROVE_OPTION) {
 					String path = fileChooser.getSelectedFile().getAbsolutePath();
 					rootPathField.setText(path);
-					List<String> rootPath = new ArrayList<>();
-					rootPath.add(path);
-					InternalSettingsManager.setTargetDirectory(TraktorDirectories.ROOT, rootPath);
+					InternalSettingsManager.setTargetTraktorPath(TraktorFileType.SETTINGS, path);
+					try {
+						InternalSettingsManager.loadTargetSettingsFromTSI();
+					} catch (FileNotFoundException e1) {
+						createErrorMessage(ErrorCase.getErrorCase(e1.getMessage()));
+					}
 					redrawPanel();
 				}
 			}
 		});
-		rootPathField.setText(InternalSettingsManager.getTargetDirecory(TraktorDirectories.ROOT).get(0));
+		rootPathField.setText(InternalSettingsManager.getTargetTraktorPath(TraktorFileType.SETTINGS));
 
 	}
 
@@ -116,7 +117,7 @@ public class SettingsPanel extends JPanel {
 
 	private void redrawPanel() {
 
-		if (settingsParser != null) {
+		if (originalSettingsParser != null) {
 			repaint();
 			mainframe.redraw();
 		}
@@ -127,6 +128,11 @@ public class SettingsPanel extends JPanel {
 		switch (error) {
 		case FILE_UPDATE_NOT_POSSIBLE:
 			new JOptionPane("Settings could not be updated.", JOptionPane.ERROR_MESSAGE);
+			break;
+		case COLLECTION_FILE_NOT_FOUND:
+			new JOptionPane(
+					"Collection file could not be found at the default location. Please make shure you synced all files right.",
+					JOptionPane.ERROR_MESSAGE);
 			break;
 		default:
 			break;

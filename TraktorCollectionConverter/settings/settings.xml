@@ -3,11 +3,11 @@
 <original>
 	<path name="TSI" type="file">G:\Musik\Native Instruments\Traktor 2.11.0\Traktor Settings.tsi</path>
 	<path name="NML" type="file">G:\Musik\Native Instruments\Traktor 2.11.0\collection.nml</path>
-	<path name="root" type="directory">G:\Musik\Native Instruments\Traktor 2.11.0\</path>
-	<collection name="music" type="directory"><path>Select your path here.</path><path>Select your path here.</path><path/><path/><path/><path/><path/><path/><path/><path/><path/></collection>
-	<path name="recordings" type="directory">G:\Musik\Mixes\Traktor Recordings\</path>
-	<path name="itunes" type="directory">C\iTunes\iTunes Music Library.xml</path>
-	<path name="remixsets" type="directory">G:\Musik\Native Instruments\Traktor\Remix Sets\</path>
+	<path name="root" type="directory">G:\Musik\Native Instruments\Traktor\Samples\</path>
+	<collection name="music" type="directory"><path>G:\bMusik\bExtra Songs for DJ Collection\b</path><path>G:\bMusik\bDownload\bFür Collection\b</path><path>Z:\bAmazon MP3\b</path><path>Z:\bBeatport\b</path><path>Z:\bCD Konvertiert\b</path><path>Z:\bDJTunes\b</path><path>Z:\bDJUweF MP3\b</path><path>Z:\bSonstige Downloads\b</path><path>G:\bMusik\bExtra Songs for DJ Collection\bDaniel (Stick)\b</path></collection>
+	<path name="recordings" type="directory">G:\Musik\Native Instruments\Traktor\Samples\</path>
+	<path name="itunes" type="directory">G:\Musik\Native Instruments\Traktor\Samples\</path>
+	<path name="remixsets" type="directory">G:\Musik\Native Instruments\Traktor\Samples\</path>
 	<path name="loops" type="directory">G:\Musik\Native Instruments\Traktor\Samples\</path>
 </original>
 
@@ -15,9 +15,7 @@
 	<path name="TSI" type="file"/>
 	<path name="NML" type="file"/>
 	<path name="root" type="directory">G:\Musik\Native Instruments\Traktor 2.11.0</path>
-	<collection name="music" type="directory">
-		
-	</collection>
+	<collection name="music" type="directory"/>
 	<path name="recordings" type="directory"/>
 	<path name="itunes" type="directory"/>
 	<path name="remixsets" type="directory"/>

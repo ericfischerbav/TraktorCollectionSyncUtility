@@ -15,9 +15,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
-import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
-
 public class SettingsParser {
 
 	public static final String ContentContentImportRootID = "Browser.Dir.ContentImportRoot";
@@ -67,23 +64,6 @@ public class SettingsParser {
 				}
 			}
 
-			List<String> path = new ArrayList<>();
-			path.add(Root);
-			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.ROOT, path);
-			path.remove(0);
-			path.add(Loops);
-			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.LOOPS, path);
-			path.remove(0);
-			path.add(ContentImportRoot);
-			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.REMIXSETS, path);
-			path.remove(0);
-			path.add(Recordings);
-			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.RECORDINGS, path);
-			path.remove(0);
-			path.add(ITunesMusic);
-			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.ITUNES, path);
-			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.MUSIC, Music);
-
 		} catch (ParserConfigurationException pce) {
 			System.out.println(pce.getMessage());
 		} catch (SAXException se) {
@@ -96,30 +76,38 @@ public class SettingsParser {
 	private void getRelevantValue(Node entryName, NamedNodeMap entryAttributes) {
 		switch (entryName.getNodeValue()) {
 		case ContentContentImportRootID:
-			ContentImportRoot = entryAttributes.item(2).getNodeValue();
+			ContentImportRoot = notNullableValue(entryAttributes);
 			break;
 		case ITunesMusicID:
-			ITunesMusic = entryAttributes.item(2).getNodeValue();
+			ITunesMusic = notNullableValue(entryAttributes);
 			break;
 		case LoopsID:
-			Loops = entryAttributes.item(2).getNodeValue();
+			Loops = notNullableValue(entryAttributes);
 			break;
 		case MusicID:
-			String musicString = entryAttributes.item(2).getNodeValue();
+			String musicString = notNullableValue(entryAttributes);
 			String[] splittedMusicString = musicString.split(";");
 			for (String string : splittedMusicString) {
 				Music.add(string);
 			}
 			break;
 		case RecordingsID:
-			Recordings = entryAttributes.item(2).getNodeValue();
+			Recordings = notNullableValue(entryAttributes);
 			break;
 		case RootID:
-			Root = entryAttributes.item(2).getNodeValue();
+			Root = notNullableValue(entryAttributes);
 			break;
 		default:
 			break;
 		}
+	}
+
+	private String notNullableValue(NamedNodeMap attr) {
+		String output = attr.item(2).getNodeValue();
+		if (output == null) {
+			return "";
+		}
+		return output;
 	}
 
 	public String getSettingsPath() {
