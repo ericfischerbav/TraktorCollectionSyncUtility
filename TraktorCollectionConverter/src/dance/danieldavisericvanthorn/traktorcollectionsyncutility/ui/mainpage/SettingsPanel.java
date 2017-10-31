@@ -5,7 +5,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.swing.JButton;
@@ -41,6 +40,8 @@ public class SettingsPanel extends JPanel {
 	private Redrawer mainframe;
 	private JTextField rootPathField;
 	private JButton rootPathButton;
+	private JTextField remixsetPathField;
+	private JButton remixsetPathButton;
 
 	public SettingsPanel(Redrawer mainframe) {
 		this.mainframe = mainframe;
@@ -87,7 +88,7 @@ public class SettingsPanel extends JPanel {
 					InternalSettingsManager.setTargetTraktorPath(TraktorFileType.SETTINGS, path);
 					try {
 						InternalSettingsManager.loadTargetSettingsFromTSI();
-					} catch (FileNotFoundException e1) {
+					} catch (ParserConfigurationException | SAXException | IOException | TransformerException e1) {
 						createErrorMessage(ErrorCase.getErrorCase(e1.getMessage()));
 					}
 					redrawPanel();
@@ -95,6 +96,24 @@ public class SettingsPanel extends JPanel {
 			}
 		});
 		rootPathField.setText(InternalSettingsManager.getTargetTraktorPath(TraktorFileType.SETTINGS));
+
+		remixsetPathField = new JTextField(300);
+		remixsetPathButton = new JButton("...");
+		createChooseFileCombi("Choose target remix sets path:", remixsetPathField, remixsetPathButton, 5,
+				new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						TraktorFileChooserFrame fileChooser = new TraktorFileChooserFrame(TraktorFileType.FOLDER,
+								rootPathField.getText());
+						if (fileChooser.showSaveDialog(SettingsPanel.this) == JFileChooser.APPROVE_OPTION) {
+							String path = fileChooser.getSelectedFile().getAbsolutePath();
+							remixsetPathField.setText(path);
+							redrawPanel();
+						}
+					}
+				});
+		remixsetPathField.setText(InternalSettingsManager.getTargetTraktorPath(TraktorFileType.SETTINGS));
 
 	}
 

@@ -236,10 +236,14 @@ public class InternalSettingsManager {
 
 	/**
 	 * Updates target settings according to the selected .tsi file.
-	 * 
-	 * @throws FileNotFoundException
+	 *
+	 * @throws TransformerException
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
 	 */
-	public static void loadTargetSettingsFromTSI() throws FileNotFoundException {
+	public static void loadTargetSettingsFromTSI()
+			throws ParserConfigurationException, SAXException, IOException, TransformerException {
 		File tsi = new File(targetFilePaths.get(TraktorFileType.SETTINGS));
 		String rootFolder = tsi.getParent();
 		List<String> value = new ArrayList<>();
@@ -252,15 +256,22 @@ public class InternalSettingsManager {
 		} else {
 			throw new FileNotFoundException(ErrorCase.COLLECTION_FILE_NOT_FOUND.getCode());
 		}
+		writeSettings();
 	}
 
 	private static void editElement(Node childElement, String content) {
+		boolean dataWritten = false;
 		NodeList childsNodes = childElement.getChildNodes();
 		for (int child = 0; child <= childsNodes.getLength(); child++) {
 			Node childNode = childsNodes.item(child);
 			if (childNode != null && childNode.getNodeType() == Node.TEXT_NODE) {
 				childNode.setNodeValue(content);
+				dataWritten = true;
 			}
+		}
+		if (!dataWritten) {
+			Node contentNode = dom.createTextNode(content);
+			childElement.appendChild(contentNode);
 		}
 	}
 
@@ -321,31 +332,31 @@ public class InternalSettingsManager {
 			Node targetChild = targetNodes.item(i);
 			if (targetChild != null && targetChild.getNodeType() == Node.ELEMENT_NODE) {
 				NodeList targetPaths = targetChild.getChildNodes();
-				for (int p = 0; p <= targetPaths.getLength(); p++) {
+				for (int p = 0; p <= targetPaths.getLength() - 1; p++) {
 					Node targetPathElement = targetPaths.item(p);
 					if (targetPathElement != null && targetPathElement.getNodeType() == Node.ELEMENT_NODE) {
 						if (targetPathElement.getNodeName().equals("path")) {
-							if (((Element) targetPathElement).getAttribute("name").equals("TSI")) {
-
-							} else if (((Element) targetPathElement).getAttribute("name").equals("NML")) {
-
+							if (((Element) targetPathElement).getAttribute("name").equals("TSI")
+									&& targetFilePaths.containsKey(TraktorFileType.SETTINGS)) {
+								editElement(targetPathElement, targetFilePaths.get(TraktorFileType.SETTINGS));
+							} else if (((Element) targetPathElement).getAttribute("name").equals("NML")
+									&& targetFilePaths.containsKey(TraktorFileType.COLLECTION)) {
+								editElement(targetPathElement, targetFilePaths.get(TraktorFileType.COLLECTION));
 							} else if (((Element) targetPathElement).getAttribute("name").equals("root")
 									&& targetDirectories.containsKey(TraktorDirectories.ROOT)) {
-								NodeList targetPathElementChilds = targetPathElement.getChildNodes();
-								if (targetPathElementChilds.getLength() > 0) {
-									for (int tpec = 0; tpec <= targetPathElementChilds.getLength(); tpec++) {
-										Node node = targetPathElementChilds.item(tpec);
-										if (node != null && node.getNodeType() == Node.TEXT_NODE) {
-											node.setNodeValue(targetDirectories.get(TraktorDirectories.ROOT).get(0));
-										}
-									}
-								} else {
-									targetPathElement.appendChild(
-											dom.createTextNode(targetDirectories.get(TraktorDirectories.ROOT).get(0)));
-								}
+								editElement(targetPathElement, targetDirectories.get(TraktorDirectories.ROOT).get(0));
 							}
-						} else if (targetPathElement.getNodeName().equals("collection")) {
-
+						}
+					} else if (targetPathElement.getNodeName().equals("collection")
+							&& ((Element) targetPathElement).getAttribute("name").equals("music")) {
+						while (targetPathElement.hasChildNodes()) {
+							targetPathElement.removeChild(targetPathElement.getFirstChild());
+						}
+						for (String musicPath : getTargetDirecory(TraktorDirectories.MUSIC)) {
+							Element newChild = dom.createElement("path");
+							Node textNode = dom.createTextNode(musicPath);
+							newChild.appendChild(textNode);
+							targetPathElement.appendChild(newChild);
 						}
 					}
 				}

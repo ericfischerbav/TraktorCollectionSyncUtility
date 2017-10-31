@@ -12,9 +12,9 @@
 </original>
 
 <target>
-	<path name="TSI" type="file"/>
+	<path name="TSI" type="file">G:\Musik\Native Instruments\Traktor 2.11.0 - Kopie\Traktor Settings.tsi</path>
 	<path name="NML" type="file"/>
-	<path name="root" type="directory">G:\Musik\Native Instruments\Traktor 2.11.0</path>
+	<path name="root" type="directory">G:\Musik\Native Instruments\Traktor 2.11.0 - Kopie</path>
 	<collection name="music" type="directory"/>
 	<path name="recordings" type="directory"/>
 	<path name="itunes" type="directory"/>
