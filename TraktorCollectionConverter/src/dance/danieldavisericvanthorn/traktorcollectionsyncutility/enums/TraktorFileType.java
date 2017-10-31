@@ -1,13 +1,14 @@
 package dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums;
 
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.filechooser.filters.FolderFilter;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.filechooser.filters.ITunesFilter;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.filechooser.filters.NMLFilter;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.filechooser.filters.TSIFilter;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.filechooser.filters.TraktorFileTypeFilter;
 
 public enum TraktorFileType {
 
-	SETTINGS(new TSIFilter()), COLLECTION(new NMLFilter()), FOLDER(new FolderFilter());
+	SETTINGS(new TSIFilter()), COLLECTION(new NMLFilter()), FOLDER(new FolderFilter()), ITUNES(new ITunesFilter());
 
 	private TraktorFileTypeFilter filter;
 

@@ -6,6 +6,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -19,11 +21,14 @@ import javax.xml.transform.TransformerException;
 import org.xml.sax.SAXException;
 
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.SettingsParser;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.SettingsWriter;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.ErrorCase;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorFileType;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.interfaces.Redrawer;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.filechooser.TraktorFileChooserFrame;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.musicfolderselection.MusicFolderSelectionFrame;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.utils.GridBagLayoutUtils;
 
 public class SettingsPanel extends JPanel {
@@ -42,6 +47,14 @@ public class SettingsPanel extends JPanel {
 	private JButton rootPathButton;
 	private JTextField remixsetPathField;
 	private JButton remixsetPathButton;
+	private JTextField loopsPathField;
+	private JButton loopsPathButton;
+	private JTextField recordingsPathField;
+	private JButton recordingsPathButton;
+
+	private JTextField itunesPathField;
+
+	private JButton itunesPathButton;
 
 	public SettingsPanel(Redrawer mainframe) {
 		this.mainframe = mainframe;
@@ -105,15 +118,107 @@ public class SettingsPanel extends JPanel {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						TraktorFileChooserFrame fileChooser = new TraktorFileChooserFrame(TraktorFileType.FOLDER,
-								rootPathField.getText());
+								remixsetPathField.getText());
 						if (fileChooser.showSaveDialog(SettingsPanel.this) == JFileChooser.APPROVE_OPTION) {
 							String path = fileChooser.getSelectedFile().getAbsolutePath();
 							remixsetPathField.setText(path);
+							List<String> value = new ArrayList<>();
+							value.add(path);
+							InternalSettingsManager.setTargetDirectory(TraktorDirectories.REMIXSETS, value);
 							redrawPanel();
 						}
 					}
 				});
-		remixsetPathField.setText(InternalSettingsManager.getTargetTraktorPath(TraktorFileType.SETTINGS));
+		remixsetPathField.setText(InternalSettingsManager.getTargetDirecory(TraktorDirectories.REMIXSETS).get(0));
+
+		loopsPathField = new JTextField(300);
+		loopsPathButton = new JButton("...");
+		createChooseFileCombi("Choose target loops path:", loopsPathField, loopsPathButton, 6, new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				TraktorFileChooserFrame fileChooser = new TraktorFileChooserFrame(TraktorFileType.FOLDER,
+						loopsPathField.getText());
+				if (fileChooser.showSaveDialog(SettingsPanel.this) == JFileChooser.APPROVE_OPTION) {
+					String path = fileChooser.getSelectedFile().getAbsolutePath();
+					loopsPathField.setText(path);
+					List<String> value = new ArrayList<>();
+					value.add(path);
+					InternalSettingsManager.setTargetDirectory(TraktorDirectories.LOOPS, value);
+					redrawPanel();
+				}
+			}
+		});
+		loopsPathField.setText(InternalSettingsManager.getTargetDirecory(TraktorDirectories.LOOPS).get(0));
+
+		recordingsPathField = new JTextField(300);
+		recordingsPathButton = new JButton("...");
+		createChooseFileCombi("Choose target recordings path:", recordingsPathField, recordingsPathButton, 7,
+				new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						TraktorFileChooserFrame fileChooser = new TraktorFileChooserFrame(TraktorFileType.FOLDER,
+								recordingsPathField.getText());
+						if (fileChooser.showSaveDialog(SettingsPanel.this) == JFileChooser.APPROVE_OPTION) {
+							String path = fileChooser.getSelectedFile().getAbsolutePath();
+							recordingsPathField.setText(path);
+							List<String> value = new ArrayList<>();
+							value.add(path);
+							InternalSettingsManager.setTargetDirectory(TraktorDirectories.RECORDINGS, value);
+							redrawPanel();
+						}
+					}
+				});
+		recordingsPathField.setText(InternalSettingsManager.getTargetDirecory(TraktorDirectories.RECORDINGS).get(0));
+
+		itunesPathField = new JTextField(300);
+		itunesPathButton = new JButton("...");
+		createChooseFileCombi("Choose target iTunes path:", itunesPathField, itunesPathButton, 8, new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				TraktorFileChooserFrame fileChooser = new TraktorFileChooserFrame(TraktorFileType.ITUNES,
+						itunesPathField.getText());
+				if (fileChooser.showSaveDialog(SettingsPanel.this) == JFileChooser.APPROVE_OPTION) {
+					String path = fileChooser.getSelectedFile().getAbsolutePath();
+					itunesPathField.setText(path);
+					List<String> value = new ArrayList<>();
+					value.add(path);
+					InternalSettingsManager.setTargetDirectory(TraktorDirectories.ITUNES, value);
+					redrawPanel();
+				}
+			}
+		});
+		itunesPathField.setText(InternalSettingsManager.getTargetDirecory(TraktorDirectories.ITUNES).get(0));
+
+		JButton chooseMusicFolders = new JButton("Choose music folders");
+		chooseMusicFolders.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				MusicFolderSelectionFrame mfsf = new MusicFolderSelectionFrame();
+				mfsf.setVisible(true);
+			}
+		});
+		GridBagLayoutUtils.addComponent(this, gbl, chooseMusicFolders, null, 1, 9, 1, 1, 1, 1,
+				GridBagConstraints.VERTICAL, GridBagConstraints.WEST);
+
+		JButton changePaths = new JButton("Start writing");
+		changePaths.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					SettingsWriter
+							.updateTSIFile(InternalSettingsManager.getTargetTraktorPath(TraktorFileType.SETTINGS));
+				} catch (TransformerException e1) {
+					createErrorMessage(ErrorCase.UPDATE_ERROR);
+				}
+			}
+		});
+		GridBagLayoutUtils.addComponent(this, gbl, changePaths, null, 2, 9, 1, 1, 1, 1, GridBagConstraints.VERTICAL,
+				GridBagConstraints.WEST);
 
 	}
 
@@ -136,11 +241,21 @@ public class SettingsPanel extends JPanel {
 
 	private void redrawPanel() {
 
-		if (originalSettingsParser != null) {
-			repaint();
-			mainframe.redraw();
+		if (allFieldsFilled()) {
+
 		}
 
+		repaint();
+		mainframe.redraw();
+	}
+
+	private boolean allFieldsFilled() {
+		return pathSettingsTSI.getText() != null && !pathSettingsTSI.getText().isEmpty()
+				&& rootPathField.getText() != null && !rootPathField.getText().isEmpty()
+				&& remixsetPathField.getText() != null && !remixsetPathField.getText().isEmpty()
+				&& loopsPathField.getText() != null && !loopsPathField.getText().isEmpty()
+				&& recordingsPathField.getText() != null && !recordingsPathField.getText().isEmpty()
+				&& itunesPathField.getText() != null && !itunesPathField.getText().isEmpty();
 	}
 
 	private void createErrorMessage(ErrorCase error) {
@@ -153,6 +268,8 @@ public class SettingsPanel extends JPanel {
 					"Collection file could not be found at the default location. Please make shure you synced all files right.",
 					JOptionPane.ERROR_MESSAGE);
 			break;
+		case UPDATE_ERROR:
+			new JOptionPane("Target settings file could not be updated.", JOptionPane.ERROR_MESSAGE);
 		default:
 			break;
 

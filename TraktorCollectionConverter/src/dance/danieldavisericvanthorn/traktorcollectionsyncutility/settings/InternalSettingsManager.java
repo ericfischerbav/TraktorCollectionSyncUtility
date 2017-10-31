@@ -21,6 +21,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -129,20 +130,11 @@ public class InternalSettingsManager {
 					Node childElement = targetChildNodes.item(a);
 					if (childElement != null && childElement.getNodeType() == Node.ELEMENT_NODE) {
 						if (childElement.getNodeName().equals("path")) {
-							// if (((Element)
-							// childElement).getAttribute("name").equals("TSI"))
-							// {
-							// setTraktorPath(TraktorFileType.SETTINGS,
-							// childElement.getTextContent());
-							// } else if (((Element)
-							// childElement).getAttribute("name").equals("NML"))
-							// {
-							// setTraktorPath(TraktorFileType.COLLECTION,
-							// childElement.getTextContent());
-							// } else if (((Element)
-							// childElement).getAttribute("name").equals("root"))
-							// {
-							if (((Element) childElement).getAttribute("name").equals("root")) {
+							if (((Element) childElement).getAttribute("name").equals("TSI")) {
+								setTargetTraktorPath(TraktorFileType.SETTINGS, childElement.getTextContent());
+							} else if (((Element) childElement).getAttribute("name").equals("NML")) {
+								setTargetTraktorPath(TraktorFileType.COLLECTION, childElement.getTextContent());
+							} else if (((Element) childElement).getAttribute("name").equals("root")) {
 								List<String> elements = new ArrayList<>();
 								elements.add(childElement.getTextContent());
 								setTargetDirectory(TraktorDirectories.ROOT, elements);
@@ -249,7 +241,7 @@ public class InternalSettingsManager {
 		List<String> value = new ArrayList<>();
 		value.add(rootFolder);
 		targetDirectories.put(TraktorDirectories.ROOT, value);
-		String nmlPath = rootFolder + "collection.nml";
+		String nmlPath = rootFolder + File.separator + "collection.nml";
 		File nml = new File(nmlPath);
 		if (nml.exists()) {
 			targetFilePaths.put(TraktorFileType.COLLECTION, nmlPath);
@@ -314,11 +306,16 @@ public class InternalSettingsManager {
 							while (childElement.hasChildNodes()) {
 								childElement.removeChild(childElement.getFirstChild());
 							}
+							Integer id = Integer.valueOf(1);
 							for (String musicPath : getOriginalDirecory(TraktorDirectories.MUSIC)) {
 								Element newChild = dom.createElement("path");
+								Attr attrID = dom.createAttribute("id");
+								attrID.setNodeValue(id.toString());
+								newChild.setAttributeNode(attrID);
 								Node textNode = dom.createTextNode(musicPath);
 								newChild.appendChild(textNode);
 								childElement.appendChild(newChild);
+								id++;
 							}
 						}
 					}
@@ -345,18 +342,38 @@ public class InternalSettingsManager {
 							} else if (((Element) targetPathElement).getAttribute("name").equals("root")
 									&& targetDirectories.containsKey(TraktorDirectories.ROOT)) {
 								editElement(targetPathElement, targetDirectories.get(TraktorDirectories.ROOT).get(0));
+							} else if (((Element) targetPathElement).getAttribute("name").equals("remixsets")
+									&& targetDirectories.containsKey(TraktorDirectories.REMIXSETS)) {
+								editElement(targetPathElement,
+										targetDirectories.get(TraktorDirectories.REMIXSETS).get(0));
+							} else if (((Element) targetPathElement).getAttribute("name").equals("recordings")
+									&& targetDirectories.containsKey(TraktorDirectories.RECORDINGS)) {
+								editElement(targetPathElement,
+										targetDirectories.get(TraktorDirectories.RECORDINGS).get(0));
+							} else if (((Element) targetPathElement).getAttribute("name").equals("itunes")
+									&& targetDirectories.containsKey(TraktorDirectories.ITUNES)) {
+								editElement(targetPathElement, targetDirectories.get(TraktorDirectories.ITUNES).get(0));
+							} else if (((Element) targetPathElement).getAttribute("name").equals("loops")
+									&& targetDirectories.containsKey(TraktorDirectories.LOOPS)) {
+								editElement(targetPathElement, targetDirectories.get(TraktorDirectories.LOOPS).get(0));
 							}
-						}
-					} else if (targetPathElement.getNodeName().equals("collection")
-							&& ((Element) targetPathElement).getAttribute("name").equals("music")) {
-						while (targetPathElement.hasChildNodes()) {
-							targetPathElement.removeChild(targetPathElement.getFirstChild());
-						}
-						for (String musicPath : getTargetDirecory(TraktorDirectories.MUSIC)) {
-							Element newChild = dom.createElement("path");
-							Node textNode = dom.createTextNode(musicPath);
-							newChild.appendChild(textNode);
-							targetPathElement.appendChild(newChild);
+
+						} else if (targetPathElement.getNodeName().equals("collection")
+								&& ((Element) targetPathElement).getAttribute("name").equals("music")) {
+							while (targetPathElement.hasChildNodes()) {
+								targetPathElement.removeChild(targetPathElement.getFirstChild());
+							}
+							Integer id = Integer.valueOf(1);
+							for (String musicPath : getTargetDirecory(TraktorDirectories.MUSIC)) {
+								Element newChild = dom.createElement("path");
+								Attr attrID = dom.createAttribute("id");
+								attrID.setNodeValue(id.toString());
+								newChild.setAttributeNode(attrID);
+								Node textNode = dom.createTextNode(musicPath);
+								newChild.appendChild(textNode);
+								targetPathElement.appendChild(newChild);
+								id++;
+							}
 						}
 					}
 				}

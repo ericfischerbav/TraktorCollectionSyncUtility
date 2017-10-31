@@ -1,4 +1,4 @@
-package dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.mainpage;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.musicfolderselection;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -18,19 +18,19 @@ import org.xml.sax.SAXException;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.interfaces.Redrawer;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
 
-public class MainFrame extends JFrame implements Redrawer {
+public class MusicFolderSelectionFrame extends JFrame implements Redrawer {
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 9201761805139104694L;
 
-	private static int width = 600;
+	private static int width = 1100;
 	private static int height = 500;
 
-	public MainFrame() {
+	public MusicFolderSelectionFrame() {
 		super("Traktor Collection Converter");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setSize(width, height);
 		Dimension d = getToolkit().getScreenSize();
 		setLocation(((d.width - getSize().width) / 2), ((d.height - getSize().height) / 2));
@@ -95,12 +95,11 @@ public class MainFrame extends JFrame implements Redrawer {
 		Container content = getContentPane();
 
 		JLabel textLabel = new JLabel(
-				"<html><p style='text-align:center'>Welcome to the \"Traktor Collection Converter\". This application helps you to sync the collection between two computers.</p>"
-						+ "<br><p style='text-align:center'>Please choose all directories mentioned below.</p></html>");
+				"<html><p style='text-align:center'>Please choose all directories mentioned below.</p></html>");
 
 		content.add(textLabel, BorderLayout.NORTH);
 
-		SettingsPanel settingsPanel = new SettingsPanel(this);
+		MusicFolderPanel settingsPanel = new MusicFolderPanel(this);
 
 		JScrollPane scrolledPane = new JScrollPane(settingsPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -117,8 +116,13 @@ public class MainFrame extends JFrame implements Redrawer {
 
 	@Override
 	public void close() {
-		// TODO Auto-generated method stub
-
+		try {
+			InternalSettingsManager.writeSettings();
+		} catch (ParserConfigurationException | SAXException | IOException | TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.dispose();
 	}
 
 }

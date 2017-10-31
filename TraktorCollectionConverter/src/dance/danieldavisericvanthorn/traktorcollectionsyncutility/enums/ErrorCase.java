@@ -5,7 +5,7 @@ import java.util.Map;
 
 public enum ErrorCase {
 
-	FILE_UPDATE_NOT_POSSIBLE("FUNP"), COLLECTION_FILE_NOT_FOUND("CFNF");
+	FILE_UPDATE_NOT_POSSIBLE("FUNP"), COLLECTION_FILE_NOT_FOUND("CFNF"), UPDATE_ERROR("UE");
 
 	private String code;
 	private static Map<String, ErrorCase> codes = new HashMap<>();

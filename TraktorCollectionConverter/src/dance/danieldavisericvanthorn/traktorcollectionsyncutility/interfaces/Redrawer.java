@@ -7,4 +7,9 @@ public interface Redrawer {
 	 */
 	public void redraw();
 
+	/**
+	 * Closes the frame.
+	 */
+	public void close();
+
 }
