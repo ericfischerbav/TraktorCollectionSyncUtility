@@ -5,14 +5,24 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import org.xml.sax.SAXException;
 
 import dance.danieldavisericvanthorn.traktorcollectionconverter.converter.SettingsParser;
+import dance.danieldavisericvanthorn.traktorcollectionconverter.enums.ErrorCase;
+import dance.danieldavisericvanthorn.traktorcollectionconverter.enums.TraktorDirectories;
 import dance.danieldavisericvanthorn.traktorcollectionconverter.enums.TraktorFileType;
 import dance.danieldavisericvanthorn.traktorcollectionconverter.interfaces.Redrawer;
 import dance.danieldavisericvanthorn.traktorcollectionconverter.settings.InternalSettingsManager;
@@ -41,24 +51,52 @@ public class SettingsPanel extends JPanel {
 
 		setLayout(gbl);
 
-		pathSettingsTSI = new JTextField();
+		pathSettingsTSI = new JTextField(300);
 		settingsTSIButton = new JButton("...");
 		createChooseFileCombi("Choose your original settings file:", pathSettingsTSI, settingsTSIButton, 1,
 				new ActionListener() {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						TraktorFileChooserFrame fileChooser = new TraktorFileChooserFrame(TraktorFileType.SETTINGS);
+						TraktorFileChooserFrame fileChooser = new TraktorFileChooserFrame(TraktorFileType.SETTINGS,
+								pathSettingsTSI.getText());
 						if (fileChooser.showSaveDialog(SettingsPanel.this) == JFileChooser.APPROVE_OPTION) {
 							String path = fileChooser.getSelectedFile().getAbsolutePath();
 							pathSettingsTSI.setText(path);
 							settingsParser = new SettingsParser(pathSettingsTSI.getText());
+							try {
+								InternalSettingsManager.updateOriginalSettings(settingsParser);
+							} catch (ParserConfigurationException | SAXException | IOException
+									| TransformerException e1) {
+								createErrorMessage(ErrorCase.FILE_UPDATE_NOT_POSSIBLE);
+							}
 							redrawPanel();
 						}
 
 					}
 				});
 		pathSettingsTSI.setText(InternalSettingsManager.getTraktorPath(TraktorFileType.SETTINGS));
+
+		rootPathField = new JTextField(300);
+		rootPathButton = new JButton("...");
+		createChooseFileCombi("Choose new Root path:", rootPathField, rootPathButton, 4, new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				TraktorFileChooserFrame fileChooser = new TraktorFileChooserFrame(TraktorFileType.FOLDER,
+						rootPathField.getText());
+				if (fileChooser.showSaveDialog(SettingsPanel.this) == JFileChooser.APPROVE_OPTION) {
+					String path = fileChooser.getSelectedFile().getAbsolutePath();
+					rootPathField.setText(path);
+					List<String> rootPath = new ArrayList<>();
+					rootPath.add(path);
+					InternalSettingsManager.setTargetDirectory(TraktorDirectories.ROOT, rootPath);
+					redrawPanel();
+				}
+			}
+		});
+		rootPathField.setEnabled(false);
+		rootPathButton.setEnabled(false);
 
 	}
 
@@ -79,44 +117,27 @@ public class SettingsPanel extends JPanel {
 				GridBagConstraints.EAST);
 	}
 
-	private void createSettingsParserOutputLabel() {
-		pathsLabel = new JLabel(settingsParser.toString());
-		GridBagLayoutUtils.addComponent(this, gbl, pathsLabel, null, 0, 2, 4, 1, 4, 1, GridBagConstraints.VERTICAL,
-				GridBagConstraints.WEST);
-	}
-
-	private void createSelectNewRootDirectoryButton() {
-		action = new JButton("Select new root directory");
-		addButtonToComponent();
-	}
-
 	private void redrawPanel() {
 
 		if (settingsParser != null) {
 			action = null;
-			settingsTSIButton.setEnabled(false);
-			rootPathField = new JTextField();
-			rootPathButton = new JButton("...");
-			createChooseFileCombi("Choose new Root path:", rootPathField, rootPathButton, 4, new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					TraktorFileChooserFrame fileChooser = new TraktorFileChooserFrame(TraktorFileType.FOLDER);
-					if (fileChooser.showSaveDialog(SettingsPanel.this) == JFileChooser.APPROVE_OPTION) {
-						String path = fileChooser.getCurrentDirectory().getAbsolutePath();
-						rootPathField.setText(path);
-						redrawPanel();
-					}
-				}
-			});
+			rootPathField.setEnabled(true);
+			rootPathButton.setEnabled(true);
 			repaint();
 			mainframe.redraw();
 		}
+
 	}
 
-	private void addButtonToComponent() {
-		GridBagLayoutUtils.addComponent(this, gbl, action, null, 0, 3, 1, 1, 1, 1, GridBagConstraints.HORIZONTAL,
-				GridBagConstraints.WEST);
+	private void createErrorMessage(ErrorCase error) {
+		switch (error) {
+		case FILE_UPDATE_NOT_POSSIBLE:
+			JOptionPane errorPane = new JOptionPane("Settings could not be updated.", JOptionPane.ERROR_MESSAGE);
+			break;
+		default:
+			break;
+
+		}
 	}
 
 }

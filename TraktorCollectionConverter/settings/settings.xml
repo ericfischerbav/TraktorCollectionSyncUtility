@@ -1,12 +1,30 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<TCC>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><TCC>
 
 <original>
-	<path name="TSI"></path>
+	<path name="TSI" type="file">G:\Musik\Native Instruments\Traktor 2.11.0\Traktor Settings.tsi</path>
+	<path name="NML" type="file">G:\Musik\Native Instruments\Traktor 2.11.0\collection.nml</path>
+	<path name="root" type="directory">G:\Musik\Native Instruments\Traktor 2.11.0\</path>
+	<collection name="music" type="directory">
+		<path>Select your path here.</path>
+		<path>Select your path here.</path>
+	</collection>
+	<path name="recordings" type="directory">G:\Musik\Mixes\Traktor Recordings\</path>
+	<path name="itunes" type="directory">C\iTunes\iTunes Music Library.xml</path>
+	<path name="remixsets" type="directory">G:\Musik\Native Instruments\Traktor\Remix Sets\</path>
+	<path name="loops" type="directory">G:\Musik\Native Instruments\Traktor\Samples\</path>
 </original>
 
 <target>
-	<path name="TSI"></path>
+	<path name="TSI" type="file"/>
+	<path name="NML" type="file"/>
+	<path name="root" type="directory">G:\Musik\Native Instruments\Traktor 2.11.0</path>
+	<collection name="music" type="directory">
+		
+	</collection>
+	<path name="recordings" type="directory"/>
+	<path name="itunes" type="directory"/>
+	<path name="remixsets" type="directory"/>
+	<path name="loops" type="directory"/>
 </target>
 
 </TCC>

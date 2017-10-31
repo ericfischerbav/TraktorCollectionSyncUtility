@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.xml.sax.SAXException;
 
@@ -62,12 +63,6 @@ public class MainFrame extends JFrame implements Redrawer {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void windowClosed(WindowEvent e) {
 				try {
 					InternalSettingsManager.writeSettings();
 				} catch (ParserConfigurationException e1) {
@@ -79,7 +74,15 @@ public class MainFrame extends JFrame implements Redrawer {
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+				} catch (TransformerException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+
 			}
 
 			@Override

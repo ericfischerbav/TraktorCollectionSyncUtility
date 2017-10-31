@@ -1,8 +1,8 @@
 package dance.danieldavisericvanthorn.traktorcollectionconverter.converter;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -14,6 +14,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import dance.danieldavisericvanthorn.traktorcollectionconverter.enums.TraktorDirectories;
+import dance.danieldavisericvanthorn.traktorcollectionconverter.settings.InternalSettingsManager;
 
 public class SettingsParser {
 
@@ -29,7 +32,7 @@ public class SettingsParser {
 	private String ContentImportRoot;
 	private String ITunesMusic;
 	private String Loops;
-	private Set<String> Music = new HashSet<>();
+	private List<String> Music = new ArrayList<>();
 	private String Recordings;
 	private String Root;
 
@@ -63,6 +66,24 @@ public class SettingsParser {
 					getRelevantValue(entryName, entryAttributes);
 				}
 			}
+
+			List<String> path = new ArrayList<>();
+			path.add(Root);
+			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.ROOT, path);
+			path.remove(0);
+			path.add(Loops);
+			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.LOOPS, path);
+			path.remove(0);
+			path.add(ContentImportRoot);
+			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.REMIXSETS, path);
+			path.remove(0);
+			path.add(Recordings);
+			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.RECORDINGS, path);
+			path.remove(0);
+			path.add(ITunesMusic);
+			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.ITUNES, path);
+			InternalSettingsManager.setOriginalDirectory(TraktorDirectories.MUSIC, Music);
+
 		} catch (ParserConfigurationException pce) {
 			System.out.println(pce.getMessage());
 		} catch (SAXException se) {
@@ -117,7 +138,7 @@ public class SettingsParser {
 		return Loops;
 	}
 
-	public Set<String> getMusicFolders() {
+	public List<String> getMusicFolders() {
 		return Music;
 	}
 

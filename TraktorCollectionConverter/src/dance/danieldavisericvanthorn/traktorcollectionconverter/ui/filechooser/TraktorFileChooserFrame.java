@@ -15,8 +15,11 @@ public class TraktorFileChooserFrame extends JFileChooser {
 	 */
 	private static final long serialVersionUID = -1633178812024938448L;
 
-	public TraktorFileChooserFrame(TraktorFileType type) {
-		setToolTipText("Choose " + type.getFileFilter().getDescription());
+	public TraktorFileChooserFrame(TraktorFileType type, String directory) {
+		setDialogTitle("Choose " + type.getFileFilter().getDescription());
+		setMultiSelectionEnabled(false);
+		setDialogType(JFileChooser.OPEN_DIALOG);
+		setCurrentDirectory(new File(directory));
 		Dimension d = getToolkit().getScreenSize();
 		setLocation(((d.width - getSize().width) / 2), ((d.height - getSize().height) / 2));
 		setCurrentDirectory(new File(InternalSettingsManager.getTraktorPath(type)));
