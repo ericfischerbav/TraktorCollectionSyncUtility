@@ -1,11 +1,12 @@
-package dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.enums;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public enum ErrorCase {
 
-	FILE_UPDATE_NOT_POSSIBLE("FUNP"), COLLECTION_FILE_NOT_FOUND("CFNF"), UPDATE_ERROR("UE");
+	FILE_UPDATE_NOT_POSSIBLE("FUNP"), COLLECTION_FILE_NOT_FOUND("CFNF"), UPDATE_ERROR(
+			"UE"), SETTINGS_FILE_COULD_NOT_BE_OPENED("SFCNBO"), PARSE_ERROR("PE"), SETTINGS_NOT_LOADABLE("SNL");
 
 	private String code;
 	private static Map<String, ErrorCase> codes = new HashMap<>();

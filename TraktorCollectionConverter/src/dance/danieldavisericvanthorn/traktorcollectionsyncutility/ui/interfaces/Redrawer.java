@@ -1,4 +1,4 @@
-package dance.danieldavisericvanthorn.traktorcollectionsyncutility.interfaces;
+package dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.interfaces;
 
 public interface Redrawer {
 

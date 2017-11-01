@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><TCC>
+
+<original>
+	<path name="TSI" type="file"></path>
+	<path name="NML" type="file"></path>
+	<path name="root" type="directory"></path>
+	<collection name="music" type="directory"></collection>
+	<path name="recordings" type="directory"></path>
+	<path name="itunes" type="directory"></path>
+	<path name="remixsets" type="directory"></path>
+	<path name="loops" type="directory"></path>
+</original>
+
+<target>
+	<path name="TSI" type="file"></path>
+	<path name="NML" type="file"></path>
+	<path name="root" type="directory"></path>
+	<collection name="music" type="directory"></collection>
+	<path name="recordings" type="directory"></path>
+	<path name="itunes" type="directory"></path>
+	<path name="remixsets" type="directory"></path>
+	<path name="loops" type="directory"></path>
+</target>
+
+</TCC>

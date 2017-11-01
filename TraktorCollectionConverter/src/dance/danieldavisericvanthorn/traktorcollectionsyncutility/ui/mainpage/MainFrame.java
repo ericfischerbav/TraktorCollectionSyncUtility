@@ -15,8 +15,8 @@ import javax.xml.transform.TransformerException;
 
 import org.xml.sax.SAXException;
 
-import dance.danieldavisericvanthorn.traktorcollectionsyncutility.interfaces.Redrawer;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.interfaces.Redrawer;
 
 public class MainFrame extends JFrame implements Redrawer {
 
@@ -30,6 +30,7 @@ public class MainFrame extends JFrame implements Redrawer {
 
 	public MainFrame() {
 		super("Traktor Collection Converter");
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(width, height);
 		Dimension d = getToolkit().getScreenSize();

@@ -15,8 +15,8 @@ import javax.xml.transform.TransformerException;
 
 import org.xml.sax.SAXException;
 
-import dance.danieldavisericvanthorn.traktorcollectionsyncutility.interfaces.Redrawer;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.interfaces.Redrawer;
 
 public class MusicFolderSelectionFrame extends JFrame implements Redrawer {
 

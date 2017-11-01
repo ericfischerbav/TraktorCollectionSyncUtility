@@ -30,52 +30,45 @@ public class SettingsWriter {
 
 	}
 
-	public static void updateTSIFile(String tsiPath) throws TransformerException {
+	public static void updateTSIFile(String tsiPath)
+			throws TransformerException, ParserConfigurationException, SAXException, IOException {
 		Document dom;
 		// Make an instance of the DocumentBuilderFactory
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		try {
-			// use the factory to take an instance of the document builder
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			// parse using the builder to get the DOM mapping of the
-			// XML file
-			dom = db.parse(tsiPath);
+		// use the factory to take an instance of the document builder
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		// parse using the builder to get the DOM mapping of the
+		// XML file
+		dom = db.parse(tsiPath);
 
-			Element nixml = dom.getDocumentElement();
-			Node traktorSettings = nixml.getChildNodes().item(0);
-			NodeList entryList = traktorSettings.getChildNodes();
+		Element nixml = dom.getDocumentElement();
+		Node traktorSettings = nixml.getChildNodes().item(0);
+		NodeList entryList = traktorSettings.getChildNodes();
 
-			for (int element = 0; element <= entryList.getLength(); element++) {
-				Node entry = entryList.item(element);
-				NamedNodeMap entryAttributes = null;
-				if (entry != null) {
-					entryAttributes = entry.getAttributes();
-				}
-				Node entryName = null;
-				if (entryAttributes != null) {
-					entryName = entryAttributes.item(0);
-				}
-				if (entryName != null) {
-					updateRelevantValue(entryName, entryAttributes);
-				}
+		for (int element = 0; element <= entryList.getLength(); element++) {
+			Node entry = entryList.item(element);
+			NamedNodeMap entryAttributes = null;
+			if (entry != null) {
+				entryAttributes = entry.getAttributes();
 			}
-
-			// write the content into xml file
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
-			DOMSource source = new DOMSource(dom);
-			StreamResult result = new StreamResult(
-					new File(InternalSettingsManager.getTargetTraktorPath(TraktorFileType.SETTINGS)));
-
-			transformer.transform(source, result);
-
-		} catch (ParserConfigurationException pce) {
-			System.out.println(pce.getMessage());
-		} catch (SAXException se) {
-			System.out.println(se.getMessage());
-		} catch (IOException ioe) {
-			System.err.println(ioe.getMessage());
+			Node entryName = null;
+			if (entryAttributes != null) {
+				entryName = entryAttributes.item(0);
+			}
+			if (entryName != null) {
+				updateRelevantValue(entryName, entryAttributes);
+			}
 		}
+
+		// write the content into xml file
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		DOMSource source = new DOMSource(dom);
+		StreamResult result = new StreamResult(
+				new File(InternalSettingsManager.getTargetTraktorPath(TraktorFileType.SETTINGS)));
+
+		transformer.transform(source, result);
+
 	}
 
 	private static void updateRelevantValue(Node entryName, NamedNodeMap entryAttributes) {

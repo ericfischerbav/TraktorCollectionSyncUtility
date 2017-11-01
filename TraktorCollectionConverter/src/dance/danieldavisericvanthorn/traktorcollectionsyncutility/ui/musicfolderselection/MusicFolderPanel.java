@@ -16,9 +16,9 @@ import javax.swing.JTextField;
 
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorFileType;
-import dance.danieldavisericvanthorn.traktorcollectionsyncutility.interfaces.Redrawer;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.filechooser.TraktorFileChooserFrame;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.interfaces.Redrawer;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.utils.GridBagLayoutUtils;
 
 public class MusicFolderPanel extends JPanel {

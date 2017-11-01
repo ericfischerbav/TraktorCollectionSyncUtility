@@ -29,9 +29,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.SettingsParser;
-import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.ErrorCase;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorFileType;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.enums.ErrorCase;
 
 /**
  * Class for managing the internal settings. It holds the settings in variables
@@ -42,7 +42,8 @@ import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorF
  */
 public class InternalSettingsManager {
 
-	private static final String file = "settings/settings.xml";
+	private static final String FILE = "settings/settings.xml";
+	private static final String DEFAULTS = "settings/default_settings.xml";
 	// needed for xml parsing
 	private static Document dom;
 	private static DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -59,14 +60,22 @@ public class InternalSettingsManager {
 
 	}
 
-	public static void loadInternalSettings() throws ParserConfigurationException, SAXException, IOException {
+	public static void loadInternalSettings()
+			throws ParserConfigurationException, SAXException, IOException, TransformerException {
 		// use the factory to take an instance of the document builder
 		if (db == null) {
 			db = dbf.newDocumentBuilder();
 		}
+
+		// check if file exists
+		File f = new File(FILE);
+		if (!f.exists()) {
+			setDefaultSettings();
+		}
+
 		// parse using the builder to get the DOM mapping of the
 		// XML file
-		dom = db.parse(file);
+		dom = db.parse(FILE);
 
 		tcc = dom.getDocumentElement();
 		NodeList originalNode = tcc.getElementsByTagName("original");
@@ -185,6 +194,23 @@ public class InternalSettingsManager {
 		}
 	}
 
+	private static void setDefaultSettings()
+			throws SAXException, IOException, ParserConfigurationException, TransformerException {
+		Document dom;
+		// Make an instance of the DocumentBuilderFactory
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		// use the factory to take an instance of the document builder
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		// parse using the builder to get the DOM mapping of the
+		// XML file
+		dom = db.parse(DEFAULTS);
+
+		File settings = new File(FILE);
+		settings.createNewFile();
+
+		writeFile(FILE, dom);
+	}
+
 	/**
 	 * Updates the original paths according to the paths from the original .TSI
 	 * file.
@@ -282,11 +308,14 @@ public class InternalSettingsManager {
 					if (childElement != null && childElement.getNodeType() == Node.ELEMENT_NODE) {
 						if (childElement.getNodeName().equals("path")) {
 							if (((Element) childElement).getAttribute("name").equals("TSI")) {
-								editElement(childElement, originalFilePaths.get(TraktorFileType.SETTINGS));
-								String collectionPath = originalFilePaths.get(TraktorFileType.SETTINGS).substring(0,
-										originalFilePaths.get(TraktorFileType.SETTINGS).length() - 20)
-										+ "collection.nml";
-								originalFilePaths.put(TraktorFileType.COLLECTION, collectionPath);
+								String settingsPath = originalFilePaths.get(TraktorFileType.SETTINGS);
+								editElement(childElement, settingsPath);
+								if (settingsPath.length() > 20) {
+									String collectionPath = settingsPath.substring(0,
+											originalFilePaths.get(TraktorFileType.SETTINGS).length() - 20)
+											+ "collection.nml";
+									originalFilePaths.put(TraktorFileType.COLLECTION, collectionPath);
+								}
 							} else if (((Element) childElement).getAttribute("name").equals("NML")) {
 								editElement(childElement, originalFilePaths.get(TraktorFileType.COLLECTION));
 							} else if (((Element) childElement).getAttribute("name").equals("root")) {
@@ -399,6 +428,9 @@ public class InternalSettingsManager {
 	private static void removeOldestBackup() {
 		Set<File> fileSet = new HashSet<>();
 		File folder = new File("settings/backup");
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
 		for (File file : folder.listFiles()) {
 			fileSet.add(file);
 		}
@@ -410,10 +442,14 @@ public class InternalSettingsManager {
 	}
 
 	private static void writeFile() throws TransformerException {
-		writeFile(file);
+		writeFile(FILE);
 	}
 
 	private static void writeFile(String path) throws TransformerException {
+		writeFile(path, dom);
+	}
+
+	private static void writeFile(String path, Document dom) throws TransformerException {
 		// write the content into xml file
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
