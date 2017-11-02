@@ -63,8 +63,6 @@ public class CollectionParser {
 							&& subitem.getNodeName().equals("LOCATION")) {
 						NamedNodeMap attr = subitem.getAttributes();
 						Node dir = attr.getNamedItem("DIR");
-						Node volume = attr.getNamedItem("VOLUME");
-						Node file = attr.getNamedItem("FILE");
 
 						if (!musicFolderPaths.contains(dir.getNodeValue())) {
 							musicFolderPaths.add(dir.getNodeValue());
