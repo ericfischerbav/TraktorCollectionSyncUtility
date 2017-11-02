@@ -22,10 +22,13 @@ import javax.xml.transform.TransformerException;
 
 import org.xml.sax.SAXException;
 
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.CollectionParser;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.CollectionWriter;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.SettingsParser;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.SettingsWriter;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorFileType;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.exceptions.TCSUException;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.enums.ErrorCase;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.filechooser.TraktorFileChooserFrame;
@@ -33,7 +36,7 @@ import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.interfaces.
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.musicfolderselection.MusicFolderSelectionFrame;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.utils.GridBagLayoutUtils;
 
-public class SettingsPanel extends JPanel {
+public class SettingsPanel extends JPanel implements Redrawer {
 
 	/**
 	 *
@@ -44,6 +47,7 @@ public class SettingsPanel extends JPanel {
 	private JTextField pathSettingsTSI = null;
 	private JButton settingsTSIButton;
 	private SettingsParser originalSettingsParser;
+	private CollectionParser originalCollectionParser;
 	private Redrawer mainframe;
 	private JTextField rootPathField;
 	private JButton rootPathButton;
@@ -105,8 +109,8 @@ public class SettingsPanel extends JPanel {
 							}
 							try {
 								InternalSettingsManager.updateOriginalSettings(originalSettingsParser);
-							} catch (ParserConfigurationException | SAXException | IOException
-									| TransformerException e1) {
+							} catch (ParserConfigurationException | SAXException | IOException | TransformerException
+									| TCSUException e1) {
 								createErrorMessage(ErrorCase.FILE_UPDATE_NOT_POSSIBLE);
 							}
 							redrawPanel();
@@ -231,7 +235,7 @@ public class SettingsPanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MusicFolderSelectionFrame mfsf = new MusicFolderSelectionFrame();
+				MusicFolderSelectionFrame mfsf = new MusicFolderSelectionFrame(SettingsPanel.this);
 				mfsf.setVisible(true);
 			}
 		});
@@ -246,7 +250,9 @@ public class SettingsPanel extends JPanel {
 				try {
 					SettingsWriter
 							.updateTSIFile(InternalSettingsManager.getTargetTraktorPath(TraktorFileType.SETTINGS));
-				} catch (TransformerException | ParserConfigurationException | SAXException | IOException e1) {
+					CollectionWriter.changeFilePaths();
+				} catch (TransformerException | ParserConfigurationException | SAXException | IOException
+						| TCSUException e1) {
 					createErrorMessage(ErrorCase.UPDATE_ERROR);
 				}
 			}
@@ -292,7 +298,9 @@ public class SettingsPanel extends JPanel {
 				&& remixsetPathField.getText() != null && !remixsetPathField.getText().isEmpty()
 				&& loopsPathField.getText() != null && !loopsPathField.getText().isEmpty()
 				&& recordingsPathField.getText() != null && !recordingsPathField.getText().isEmpty()
-				&& itunesPathField.getText() != null && !itunesPathField.getText().isEmpty();
+				&& itunesPathField.getText() != null && !itunesPathField.getText().isEmpty()
+				&& InternalSettingsManager.getTargetDirecory(TraktorDirectories.MUSIC) != null
+				&& !InternalSettingsManager.getTargetDirecory(TraktorDirectories.MUSIC).isEmpty();
 	}
 
 	private void createErrorMessage(ErrorCase error) {
@@ -317,6 +325,16 @@ public class SettingsPanel extends JPanel {
 			break;
 
 		}
+	}
+
+	@Override
+	public void redraw() {
+		redrawPanel();
+	}
+
+	@Override
+	public void close() {
+		mainframe.close();
 	}
 
 }

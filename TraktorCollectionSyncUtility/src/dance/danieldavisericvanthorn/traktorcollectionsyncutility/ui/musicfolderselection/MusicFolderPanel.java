@@ -34,7 +34,7 @@ public class MusicFolderPanel extends JPanel {
 	private List<String> targetMusicPaths = InternalSettingsManager.getTargetDirecory(TraktorDirectories.MUSIC);
 	private JButton finish;
 
-	public MusicFolderPanel(Redrawer mainframe) {
+	public MusicFolderPanel(Redrawer mainframe, Redrawer motherframe) {
 		this.mainframe = mainframe;
 
 		setLayout(gbl);
@@ -73,6 +73,7 @@ public class MusicFolderPanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				motherframe.redraw();
 				MusicFolderPanel.this.mainframe.close();
 			}
 		});

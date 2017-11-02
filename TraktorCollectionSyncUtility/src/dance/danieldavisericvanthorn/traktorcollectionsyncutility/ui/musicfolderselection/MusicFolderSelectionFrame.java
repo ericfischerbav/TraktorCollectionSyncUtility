@@ -28,7 +28,7 @@ public class MusicFolderSelectionFrame extends JFrame implements Redrawer {
 	private static int width = 1100;
 	private static int height = 500;
 
-	public MusicFolderSelectionFrame() {
+	public MusicFolderSelectionFrame(Redrawer mainframe) {
 		super("Traktor Collection Converter");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setSize(width, height);
@@ -64,6 +64,7 @@ public class MusicFolderSelectionFrame extends JFrame implements Redrawer {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				try {
+					mainframe.redraw();
 					InternalSettingsManager.writeSettings();
 				} catch (ParserConfigurationException e1) {
 					// TODO Auto-generated catch block
@@ -99,7 +100,7 @@ public class MusicFolderSelectionFrame extends JFrame implements Redrawer {
 
 		content.add(textLabel, BorderLayout.NORTH);
 
-		MusicFolderPanel settingsPanel = new MusicFolderPanel(this);
+		MusicFolderPanel settingsPanel = new MusicFolderPanel(this, mainframe);
 
 		JScrollPane scrolledPane = new JScrollPane(settingsPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

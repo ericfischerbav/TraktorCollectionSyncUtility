@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,9 +29,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.CollectionParser;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.converter.SettingsParser;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorFileType;
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.exceptions.TCSUException;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.enums.ErrorCase;
 
 /**
@@ -215,37 +218,49 @@ public class InternalSettingsManager {
 	 * Updates the original paths according to the paths from the original .TSI
 	 * file.
 	 *
-	 * @param parser
+	 * @param settingsParser
 	 *            - The {@link SettingsParser} to take all information from.
+	 * @param collectionParser
 	 * @throws IOException
 	 * @throws SAXException
 	 * @throws ParserConfigurationException
 	 * @throws TransformerException
+	 * @throws TCSUException
 	 */
-	public static void updateOriginalSettings(SettingsParser parser)
-			throws ParserConfigurationException, SAXException, IOException, TransformerException {
+	public static void updateOriginalSettings(SettingsParser settingsParser)
+			throws ParserConfigurationException, SAXException, IOException, TransformerException, TCSUException {
 
-		String collectionPath = originalFilePaths.get(TraktorFileType.SETTINGS).substring(0,
-				originalFilePaths.get(TraktorFileType.SETTINGS).length() - 20) + "collection.nml";
+		setOriginalTraktorPath(TraktorFileType.SETTINGS, settingsParser.getSettingsPath());
+
+		String collectionPath;
+		if (originalFilePaths.get(TraktorFileType.SETTINGS).length() > 20) {
+			collectionPath = originalFilePaths.get(TraktorFileType.SETTINGS).substring(0,
+					originalFilePaths.get(TraktorFileType.SETTINGS).length() - 20) + "collection.nml";
+		} else {
+			collectionPath = "";
+		}
 		originalFilePaths.put(TraktorFileType.COLLECTION, collectionPath);
 
 		List<String> value = new ArrayList<>();
-		value.add(parser.getRoot());
+		value.add(settingsParser.getRoot());
 		originalDirectories.put(TraktorDirectories.ROOT, value);
 		value.remove(0);
-		value.add(parser.getRecordings());
+		value.add(settingsParser.getRecordings());
 		originalDirectories.put(TraktorDirectories.RECORDINGS, value);
 		value.remove(0);
-		value.add(parser.getContentImportRoot());
+		value.add(settingsParser.getContentImportRoot());
 		originalDirectories.put(TraktorDirectories.REMIXSETS, value);
 		value.remove(0);
-		value.add(parser.getITunesMusic());
+		value.add(settingsParser.getITunesMusic());
 		originalDirectories.put(TraktorDirectories.ITUNES, value);
 		value.remove(0);
-		value.add(parser.getLoops());
+		value.add(settingsParser.getLoops());
 		originalDirectories.put(TraktorDirectories.LOOPS, value);
 
-		List<String> musicPaths = parser.getMusicFolders();
+		CollectionParser collectionParser = new CollectionParser(collectionPath);
+
+		List<String> musicPaths = collectionParser.getMusicFolderPaths();
+		musicPaths.addAll(settingsParser.getMusicFolders());
 		setOriginalDirectory(TraktorDirectories.MUSIC, musicPaths);
 
 		writeSettings();
@@ -495,7 +510,15 @@ public class InternalSettingsManager {
 	}
 
 	public static void setOriginalDirectory(TraktorDirectories type, List<String> path) {
-		originalDirectories.put(type, path);
+		if (type == TraktorDirectories.MUSIC) {
+			List<String> formattedList = new ArrayList<>();
+			for (String string : path) {
+				formattedList.add(string.replaceAll(Matcher.quoteReplacement("\\b"), Matcher.quoteReplacement("\\")));
+			}
+			originalDirectories.put(type, formattedList);
+		} else {
+			originalDirectories.put(type, path);
+		}
 	}
 
 	public static List<String> getTargetDirecory(TraktorDirectories type) {

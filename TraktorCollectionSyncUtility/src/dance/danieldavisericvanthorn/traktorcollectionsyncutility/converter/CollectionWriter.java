@@ -19,6 +19,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorDirectories;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.enums.TraktorFileType;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.exceptions.TCSUException;
 import dance.danieldavisericvanthorn.traktorcollectionsyncutility.settings.InternalSettingsManager;
@@ -26,12 +27,13 @@ import dance.danieldavisericvanthorn.traktorcollectionsyncutility.ui.enums.Error
 
 public class CollectionWriter {
 
+	private static Document dom;
+
 	private CollectionWriter() {
 	}
 
 	public static void changeFilePaths()
 			throws TransformerException, SAXException, IOException, ParserConfigurationException, TCSUException {
-		Document dom;
 		// Make an instance of the DocumentBuilderFactory
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		// use the factory to take an instance of the document builder
@@ -67,17 +69,43 @@ public class CollectionWriter {
 						Node dir = attr.getNamedItem("DIR");
 						Node volume = attr.getNamedItem("VOLUME");
 						Node file = attr.getNamedItem("FILE");
-						
+
 						StringBuilder pathBuilder = new StringBuilder();
 						pathBuilder.append(dir.getNodeValue());
-						pathBuilder.append(volume.getNodeValue());
 						pathBuilder.append(file.getNodeValue());
 
+						String formattedPath = pathBuilder.toString().replaceAll(":", "");
+
+						File oldLocation = new File(formattedPath);
+						File newLocation = null;
+
+						int id = 0;
+						for (String pathToCheck : InternalSettingsManager
+								.getOriginalDirecory(TraktorDirectories.MUSIC)) {
+							String originalSplittedPath = oldLocation.getAbsolutePath().substring(0,
+									pathToCheck.length() - 1);
+							System.out.println(originalSplittedPath + " || " + pathToCheck);
+							if (pathToCheck.equals(originalSplittedPath)) {
+								String relativePath = oldLocation.getAbsolutePath().substring(pathToCheck.length());
+								newLocation = new File(pathToCheck + relativePath);
+								System.out.println(newLocation.getAbsolutePath());
+								break;
+							}
+							id++;
+						}
+
+						if (newLocation != null) {
+							volume.setNodeValue(newLocation.getAbsolutePath().substring(0, 2));
+							System.out.println(volume.getNodeValue());
+						}
 					}
 				}
 			}
 		}
 
+	}
+
+	private static void writeFile() throws TransformerException {
 		// write the content into xml file
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
