@@ -67,6 +67,11 @@ public class CollectionWriter {
 						Node dir = attr.getNamedItem("DIR");
 						Node volume = attr.getNamedItem("VOLUME");
 						Node file = attr.getNamedItem("FILE");
+						
+						StringBuilder pathBuilder = new StringBuilder();
+						pathBuilder.append(dir.getNodeValue());
+						pathBuilder.append(volume.getNodeValue());
+						pathBuilder.append(file.getNodeValue());
 
 					}
 				}
