@@ -25,8 +25,21 @@ public class Folder {
 		return path;
 	}
 
+	/**
+	 * Checks, if the given {@link Folder} is a subfolder of this object.
+	 *
+	 * @param folder
+	 * @return
+	 */
 	public boolean hasSubfolder(Folder folder) {
-		return false;
+		int index = 0;
+		for (String string : path) {
+			if (!string.equals(folder.getPath().get(index))) {
+				return false;
+			}
+			index++;
+		}
+		return true;
 	}
 
 	@Override
