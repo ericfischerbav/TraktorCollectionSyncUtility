@@ -73,6 +73,10 @@ public class CollectionParser {
 		}
 	}
 
+	public void normalizeMusicFolders() {
+
+	}
+
 	public List<String> getMusicFolderPaths() {
 		return musicFolderPaths;
 	}
