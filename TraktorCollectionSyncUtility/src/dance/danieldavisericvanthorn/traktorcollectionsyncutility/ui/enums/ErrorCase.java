@@ -11,7 +11,8 @@ public enum ErrorCase {
 	SETTINGS_FILE_COULD_NOT_BE_OPENED("SFCNBO"),
 	PARSE_ERROR("PE"),
 	SETTINGS_NOT_LOADABLE("SNL"),
-	COLLECTION_PATH_NOT_BIULT("CPNB");
+	COLLECTION_PATH_NOT_BIULT("CPNB"),
+	GIVEN_FOLDER_NOT_COMPARABLE("GFNC");
 
 	private String code;
 	private static Map<String, ErrorCase> codes = new HashMap<>();
